@@ -112,9 +112,12 @@ export default function POS() {
   const [isManualMovementModalOpen, setIsManualMovementModalOpen] = useState(false);
   const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
   const [manualMovementData, setManualMovementData] = useState({ type: 'income' as 'income' | 'expense', amount: '', description: '' });
-  const [openingCashData, setOpeningCashData] = useState({ amount: '', description: '' });
+  const [openingCashData, setOpeningCashData] = useState({ amount: '', description: '', branch_id: '' });
   const [closingCashData, setClosingCashData] = useState({ amount: '', description: '' });
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+  const [branches, setBranches] = useState<any[]>([]);
+  const [selectedBranch, setSelectedBranch] = useState<string>('');
 
   const ticketRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -135,11 +138,12 @@ export default function POS() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [sessionData, lastClosedData, categoriesData, customersData] = await Promise.all([
+      const [sessionData, lastClosedData, categoriesData, customersData, branchesData] = await Promise.all([
         saleService.getActiveSession(),
         saleService.getLastClosedSession(),
         productService.getCategories(),
-        saleService.getCustomers()
+        saleService.getCustomers(),
+        apiFetch('/api/branches').then(r => r.ok ? r.json() : [])
       ]);
 
       const activeSess = sessionData && !sessionData.error ? sessionData : null;
@@ -147,6 +151,7 @@ export default function POS() {
       setLastClosedSession(lastClosedData && !lastClosedData.error ? lastClosedData : null);
       setCategories(categoriesData);
       setCustomers(customersData);
+      setBranches(branchesData);
 
       const productsData = await productService.getAll();
       setProducts(productsData);
@@ -568,10 +573,11 @@ export default function POS() {
     try {
       await saleService.openSession({
         opening_balance: parseFloat(openingCashData.amount),
-        description: openingCashData.description
-      });
+        description: openingCashData.description,
+        branch_id: parseInt(openingCashData.branch_id)
+      } as any);
       fetchData();
-      setOpeningCashData({ amount: '', description: '' });
+      setOpeningCashData({ amount: '', description: '', branch_id: '' });
     } catch (error: any) {
       console.error('Error opening cash session:', error);
       alert(error.message || 'Error al abrir caja');

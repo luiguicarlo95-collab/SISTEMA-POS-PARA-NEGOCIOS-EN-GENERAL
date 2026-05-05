@@ -20,6 +20,7 @@ import suppliersRoutes from "./routes/suppliers.js";
 import customersRoutes from "./routes/customers.js";
 import cashSessionsRoutes from "./routes/cash-sessions.js";
 import cashFlowRoutes from "./routes/cash-flow.js";
+import branchesRoutes from "./routes/branches.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 async function startServer() {
@@ -66,6 +67,7 @@ async function startServer() {
   app.use("/api/cash-sessions", cashSessionsRoutes);
   app.use("/api/cash-flow", cashFlowRoutes);
   app.use("/api/reports", reportsRoutes);
+  app.use("/api/branches", branchesRoutes);
   
   // 404 Handler for API
   app.use("/api/*", (req, res) => {

@@ -33,6 +33,7 @@ export const cashSessionSchema = z.object({
     opening_balance: z.number().min(0, "El saldo inicial no puede ser negativo").optional(),
     closing_balance: z.number().min(0, "El saldo final no puede ser negativo").optional(),
     description: z.string().optional(),
+    branch_id: z.number().int().optional().nullable(),
   }),
 });
 

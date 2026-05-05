@@ -92,6 +92,33 @@ export const initDb = () => {
       FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS branches (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      address TEXT,
+      phone TEXT,
+      email TEXT,
+      is_main INTEGER DEFAULT 0,
+      status TEXT DEFAULT 'active',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS inventory_transfers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      from_branch_id INTEGER,
+      to_branch_id INTEGER,
+      product_id INTEGER,
+      quantity INTEGER,
+      user_id INTEGER,
+      status TEXT DEFAULT 'pending',
+      notes TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (from_branch_id) REFERENCES branches(id),
+      FOREIGN KEY (to_branch_id) REFERENCES branches(id),
+      FOREIGN KEY (product_id) REFERENCES products(id),
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    );
+
     CREATE TABLE IF NOT EXISTS sales (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       customer_id INTEGER,
@@ -276,6 +303,11 @@ export const initDb = () => {
   safeAddColumn("products", "has_serials", "INTEGER DEFAULT 0");
   safeAddColumn("products", "tipo_stock", "TEXT DEFAULT 'cantidad'");
   safeAddColumn("cash_sessions", "balance", "REAL DEFAULT 0");
+  safeAddColumn("cash_sessions", "branch_id", "INTEGER");
+  safeAddColumn("cash_flow", "branch_id", "INTEGER");
+  safeAddColumn("users", "branch_id", "INTEGER");
+  safeAddColumn("products", "branch_id", "INTEGER");
+  safeAddColumn("sales", "branch_id", "INTEGER");
 };
 
 export const query = {
